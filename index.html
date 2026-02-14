@@ -1,0 +1,963 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>💜 Özel Albüm</title>
+
+  <style>
+    :root{
+      /* Tema: lila + pastel + koyu detay */
+      --bg: #d9c7ff;          /* lila */
+      --bg2:#f6f1ff;          /* çok açık */
+      --card:#ffffffcc;       /* cam */
+      --ink:#2a1638;          /* koyu mor */
+      --muted:#513465;
+      --accent:#ff5bef;       /* heart */
+      --accent2:#f20044;      /* loader heart */
+      --shadow: 0 18px 60px rgba(24, 10, 40, .18);
+      --radius: 18px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 600px at 15% 10%, #fff8, transparent 60%),
+        radial-gradient(900px 500px at 85% 35%, #fff6, transparent 55%),
+        linear-gradient(180deg, var(--bg), #cdb7ff 65%, #c2abff);
+      overflow:hidden;
+    }
+
+    /* Arka plan animasyon kalpleri */
+    .bg-hearts{
+      position:fixed; inset:0; pointer-events:none; z-index:0;
+      opacity:.65;
+      filter: blur(.1px);
+    }
+    .bg-heart{
+      position:absolute;
+      width:14px; height:14px;
+      transform: rotate(-45deg);
+      background: rgba(255,255,255,.5);
+      border-radius: 3px;
+      animation: floatUp linear forwards;
+    }
+    .bg-heart::before,.bg-heart::after{
+      content:"";
+      position:absolute;
+      width:14px; height:14px;
+      background: rgba(255,255,255,.5);
+      border-radius: 50%;
+    }
+    .bg-heart::before{top:-50%; left:0}
+    .bg-heart::after{left:50%; top:0}
+    @keyframes floatUp{
+      from{ transform: translateY(10vh) rotate(-45deg); opacity:0 }
+      10%{opacity:.8}
+      to{ transform: translateY(-120vh) rotate(-45deg); opacity:0 }
+    }
+
+    /* Sayfa düzeni */
+    .app{
+      position:relative;
+      z-index:1;
+      height:100%;
+      display:grid;
+      place-items:center;
+      padding: 22px;
+    }
+    .panel{
+      width:min(940px, 100%);
+      background: var(--card);
+      border: 1px solid rgba(42,22,56,.10);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+      position:relative;
+    }
+    .panel::before{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        radial-gradient(800px 200px at 20% 0%, rgba(255,255,255,.65), transparent 60%),
+        radial-gradient(800px 240px at 80% 15%, rgba(255,255,255,.45), transparent 55%);
+      pointer-events:none;
+    }
+    .panel-inner{
+      position:relative;
+      padding: 26px 22px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding: 18px 22px;
+      border-bottom: 1px solid rgba(42,22,56,.10);
+      background: rgba(246,241,255,.65);
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      font-weight:700;
+      letter-spacing:.2px;
+    }
+    .pill{
+      font-size:12px;
+      padding: 6px 10px;
+      border-radius:999px;
+      background: rgba(42,22,56,.08);
+      color: var(--muted);
+      border:1px solid rgba(42,22,56,.10);
+      white-space:nowrap;
+    }
+
+    .screen{ display:none; }
+    .screen.active{ display:block; }
+
+    .grid{
+      display:grid;
+      gap:18px;
+    }
+    @media (min-width: 860px){
+      .grid.two{ grid-template-columns: 1.15fr .85fr; align-items:start; }
+    }
+
+    .card{
+      background: rgba(255,255,255,.72);
+      border: 1px solid rgba(42,22,56,.10);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 10px 28px rgba(24,10,40,.08);
+    }
+
+    h1,h2,h3{margin:0 0 10px 0}
+    h1{font-size:24px}
+    h2{font-size:18px}
+    p{margin:0 0 10px 0; color: var(--muted); line-height:1.5}
+
+    .field{
+      display:grid;
+      gap:10px;
+      margin-top: 10px;
+    }
+    label{
+      font-weight:650;
+      color: var(--ink);
+      font-size: 13px;
+    }
+    .row{
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+    input[type="text"], input[type="password"]{
+      flex: 1 1 260px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(42,22,56,.18);
+      background: rgba(255,255,255,.9);
+      color: var(--ink);
+      outline:none;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+    }
+    input::placeholder{color: rgba(81,52,101,.55)}
+    .btn{
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(42,22,56,.16);
+      background: rgba(42,22,56,.92);
+      color: #fff;
+      font-weight:650;
+      cursor:pointer;
+      transition: transform .06s ease, filter .2s ease;
+      user-select:none;
+    }
+    .btn:active{ transform: translateY(1px) scale(.99) }
+    .btn.secondary{
+      background: rgba(255,255,255,.78);
+      color: var(--ink);
+    }
+
+    .note{
+      font-size: 12px;
+      color: rgba(81,52,101,.85);
+    }
+
+    /* Loader sayfası (kalp + uyarı) */
+    .loader-wrap{
+      min-height: 420px;
+      display:grid;
+      place-items:center;
+      text-align:center;
+      padding: 22px 16px;
+      position:relative;
+      overflow:hidden;
+    }
+    .warning{
+      font-weight:800;
+      letter-spacing:.4px;
+      color: rgba(42,22,56,.96);
+      margin-top: 14px;
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+    .sub{
+      color: rgba(81,52,101,.9);
+      font-size: 13px;
+    }
+
+    /* From Uiverse.io by gogo_3618 */
+    .heart-loader{
+      height: 70px;
+      width: 70px;
+      background: var(--accent2);
+      transform: rotate(-45deg);
+      box-shadow: -10px -10px 90px var(--accent2);
+      animation: anim 0.6s linear infinite;
+      position:relative;
+      margin: 8px auto 0;
+    }
+    @keyframes anim {
+      0% { transform: rotate(-45deg) scale(1.07); filter: blur(0px); }
+      80% { transform: rotate(-45deg) scale(1); filter: blur(1px); }
+      100% { transform: rotate(-45deg) scale(0.8); filter: blur(2px); }
+    }
+    .heart-loader:before {
+      content: "";
+      position: absolute;
+      height: 70px;
+      width: 70px;
+      background: var(--accent2);
+      top: -50%;
+      border-radius: 50px;
+    }
+    .heart-loader:after {
+      content: "";
+      position: absolute;
+      height: 70px;
+      width: 70px;
+      background: var(--accent2);
+      right: -50%;
+      border-radius: 50px;
+    }
+
+    /* Minigame */
+    .game{
+      min-height: 520px;
+      position:relative;
+      overflow:hidden;
+    }
+    .hud{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom: 10px;
+    }
+    .hud .kpi{
+      display:flex; gap:10px; flex-wrap:wrap;
+      align-items:center;
+    }
+    .kpi .chip{
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(42,22,56,.08);
+      border: 1px solid rgba(42,22,56,.10);
+      font-size: 12px;
+      color: rgba(42,22,56,.92);
+      font-weight:700;
+    }
+    .game-instructions{
+      font-weight:750;
+      color: rgba(42,22,56,.92);
+      margin: 0 0 10px 0;
+    }
+    .stage-toast{
+      position:absolute;
+      left:50%; top:22px;
+      transform: translateX(-50%);
+      background: rgba(42,22,56,.92);
+      color:#fff;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 14px 40px rgba(24,10,40,.22);
+      opacity:0;
+      pointer-events:none;
+      transition: opacity .25s ease, transform .25s ease;
+      max-width: min(520px, 92%);
+      text-align:center;
+      font-weight:750;
+      font-size: 13px;
+    }
+    .stage-toast.show{
+      opacity:1;
+      transform: translateX(-50%) translateY(6px);
+    }
+    .heart-field{
+      position:relative;
+      height: 420px;
+      border-radius: 16px;
+      background:
+        radial-gradient(500px 220px at 20% 10%, rgba(255,255,255,.75), transparent 60%),
+        radial-gradient(480px 220px at 85% 30%, rgba(255,255,255,.55), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.25));
+      border: 1px solid rgba(42,22,56,.12);
+      overflow:hidden;
+    }
+
+    /* From Uiverse.io by catraco */
+    .heart-container {
+      --heart-color: rgb(255, 91, 239);
+      position: absolute;
+      width: 52px;
+      height: 52px;
+      transition: .2s;
+      filter: drop-shadow(0 10px 18px rgba(24,10,40,.12));
+    }
+    .heart-container:hover{ transform: translateY(-1px) scale(1.03); }
+    .heart-container .checkbox {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      z-index: 20;
+      cursor: pointer;
+    }
+    .heart-container .svg-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .heart-container .svg-outline,
+    .heart-container .svg-filled {
+      fill: var(--heart-color);
+      position: absolute;
+    }
+    .heart-container .svg-filled {
+      animation: keyframes-svg-filled 1s;
+      display: none;
+    }
+    .heart-container .svg-celebrate {
+      position: absolute;
+      animation: keyframes-svg-celebrate .5s;
+      animation-fill-mode: forwards;
+      display: none;
+      stroke: var(--heart-color);
+      fill: var(--heart-color);
+      stroke-width: 2px;
+    }
+    .heart-container .checkbox:checked~.svg-container .svg-filled { display: block }
+    .heart-container .checkbox:checked~.svg-container .svg-celebrate { display: block }
+    @keyframes keyframes-svg-filled {
+      0% { transform: scale(0); }
+      25% { transform: scale(1.2); }
+      50% { transform: scale(1); filter: brightness(1.5); }
+    }
+    @keyframes keyframes-svg-celebrate {
+      0% { transform: scale(0); }
+      50% { opacity: 1; filter: brightness(1.5); }
+      100% { transform: scale(1.4); opacity: 0; display: none; }
+    }
+
+    /* Albüm 3D */
+    .album{
+      min-height: 560px;
+      display:grid;
+      gap: 14px;
+      align-items:center;
+    }
+    .love-title{
+      text-align:center;
+      padding: 10px 8px 0;
+    }
+    .love-title h1{ font-size: 26px; margin-bottom: 6px; }
+    .love-title p{ margin: 0; color: rgba(81,52,101,.92); font-weight:650; }
+
+    .carousel-wrap{
+      display:grid;
+      place-items:center;
+      padding: 12px 0 8px;
+    }
+    .carousel{
+      width: min(520px, 92vw);
+      height: min(340px, 54vw);
+      max-height: 360px;
+      position:relative;
+      transform-style: preserve-3d;
+      animation: spin 18s linear infinite;
+    }
+    .carousel:hover{ animation-play-state: paused; }
+    .slide{
+      position:absolute;
+      inset:0;
+      display:grid;
+      place-items:center;
+      transform-style: preserve-3d;
+    }
+    .slide img{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 18px;
+      border: 1px solid rgba(42,22,56,.18);
+      box-shadow: 0 18px 50px rgba(24,10,40,.18);
+      user-select:none;
+      -webkit-user-drag:none;
+    }
+    @keyframes spin{
+      from{ transform: rotateY(0deg); }
+      to{ transform: rotateY(360deg); }
+    }
+
+    /* Video overlay (yanlış cevap) */
+    .overlay{
+      position:fixed; inset:0;
+      background: rgba(12, 6, 18, .72);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+      z-index: 50;
+    }
+    .overlay.show{ display:flex; }
+    .overlay-card{
+      width: min(920px, 100%);
+      background: rgba(255,255,255,.92);
+      border-radius: 18px;
+      border: 1px solid rgba(42,22,56,.18);
+      box-shadow: 0 26px 80px rgba(0,0,0,.35);
+      overflow:hidden;
+    }
+    .overlay-head{
+      display:flex; justify-content:space-between; align-items:center;
+      padding: 12px 14px;
+      background: rgba(246,241,255,.9);
+      border-bottom: 1px solid rgba(42,22,56,.12);
+    }
+    .overlay-head b{ color: rgba(42,22,56,.92); }
+    .overlay-body{ padding: 14px; }
+    video{
+      width:100%;
+      max-height: 60vh;
+      border-radius: 14px;
+      border: 1px solid rgba(42,22,56,.14);
+      background:#000;
+    }
+
+    /* Küçük geçiş animasyonları */
+    .fade-in{ animation: fadeIn .35s ease both; }
+    @keyframes fadeIn{
+      from{ opacity:0; transform: translateY(6px); }
+      to{ opacity:1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-hearts" id="bgHearts"></div>
+
+  <div class="app">
+    <div class="panel">
+      <div class="topbar">
+        <div class="brand">
+          <span aria-hidden="true">💜</span>
+          <span>Sevgililer Günü Özel</span>
+        </div>
+        <div class="pill" id="statusPill">Tek sayfa • HTML/CSS/JS</div>
+      </div>
+
+      <div class="panel-inner">
+
+        <!-- SCREEN 1: Şifre -->
+        <section class="screen active fade-in" id="screen-pass-1">
+          <div class="grid two">
+            <div class="card">
+              <h1>Giriş Doğrulama</h1>
+              <p>Bu içerik, kontrollü erişimle çalışır. Soruyu yanıtlayıp devam edebilirsin.</p>
+
+              <div class="field">
+                <label for="q1">Soru: <b>Taha ne zaman kaza yapmıştır?</b></label>
+                <div class="row">
+                  <input id="q1" type="text" inputmode="text" autocomplete="off"
+                         placeholder="Cevabı yaz (ör: 30 ekim 2024)" />
+                  <button class="btn" id="btnQ1">Doğrula</button>
+                </div>
+                <div class="note">Not: Format esnek; büyük/küçük harf ve ekstra boşluk toleranslı.</div>
+              </div>
+            </div>
+
+            <div class="card">
+              <h2>Not</h2>
+              <p>Yanlış cevapta video açılır. Doğru cevapta kısa bir yükleme ekranından sonra mini-game başlar.</p>
+              <p class="note">Repo yapısı: tek dosya (<code>index.html</code>) + aynı klasörde <code>video.mp4</code> ve 6 fotoğraf.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SCREEN 2: Loader + Uyarı -->
+        <section class="screen fade-in" id="screen-loader">
+          <div class="loader-wrap card">
+            <div>
+              <div class="heart-loader" aria-hidden="true"></div>
+              <div class="warning">⚠️⚠️ BU SİTE SADECE TEK KİŞİYE ÖZELDİR ⚠️⚠️</div>
+              <div class="sub">Yükleniyor... Kalpler hazırlanıyor.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SCREEN 3: Minigame -->
+        <section class="screen fade-in" id="screen-game">
+          <div class="card game">
+            <div class="hud">
+              <div>
+                <div class="game-instructions" id="gameInstruction">Sayfadaki <b>tüm tıklanabilir kalplere</b> bas.</div>
+                <p class="note" id="gameSub">Kalpler rastgele oluşur. Hepsine basınca bir sonraki aşamaya geçersin.</p>
+              </div>
+
+              <div class="kpi">
+                <div class="chip">Aşama: <span id="stageLabel">1</span>/3</div>
+                <div class="chip">Bu aşama tıklama: <span id="stageClicks">0</span>/<span id="stageTarget">15</span></div>
+                <div class="chip">Toplam tıklama: <span id="totalClicks">0</span></div>
+              </div>
+            </div>
+
+            <div class="stage-toast" id="toast"></div>
+
+            <div class="heart-field" id="heartField" aria-label="Kalp alanı"></div>
+
+            <div class="row" style="margin-top:12px; justify-content:space-between">
+              <button class="btn secondary" id="btnResetGame" type="button">Mini-game Sıfırla</button>
+              <button class="btn" id="btnForceNext" type="button" style="display:none">Devam (debug)</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- SCREEN 4: 2. Şifre -->
+        <section class="screen fade-in" id="screen-pass-2">
+          <div class="grid two">
+            <div class="card">
+              <h1>İkinci Doğrulama</h1>
+              <p>Soru: <b>Kaç kalbe bastığını, aralarına nokta koyarak sırayla yaz.</b></p>
+
+              <div class="field">
+                <label for="q2">Örnek format: <b>15.05.01</b></label>
+                <div class="row">
+                  <input id="q2" type="text" inputmode="text" autocomplete="off" placeholder="15.05.01" />
+                  <button class="btn" id="btnQ2">Doğrula</button>
+                </div>
+                <div class="note" id="q2Hint">İpucu: 3 aşamadaki tıklamaları sırayla yaz.</div>
+              </div>
+
+              <div class="card" style="margin-top:14px; background:rgba(255,255,255,.55)">
+                <h2>Çıkacak Tarih</h2>
+                <p>Doğruysa ekranda şu tarih görünür: <b>15/05/01</b></p>
+              </div>
+            </div>
+
+            <div class="card">
+              <h2>Kontrol Noktası</h2>
+              <p>Yanlış girilirse video ekranına yönlendirilir.</p>
+              <p class="note">Mini-game sonuçları: <span id="resultPreview">—</span></p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SCREEN 5: Albüm -->
+        <section class="screen fade-in" id="screen-album">
+          <div class="album">
+            <div class="love-title">
+              <h1>Sevgilim seni çok seviyorum.</h1>
+              <p>İyi ki benim sevgilimsin.</p>
+            </div>
+
+            <div class="carousel-wrap">
+              <div class="carousel" id="carousel" aria-label="3D Fotoğraf Albümü">
+                <div class="slide" style="transform: rotateY(0deg) translateZ(280px);">
+                  <img src="photo1.jpg" alt="Fotoğraf 1" />
+                </div>
+                <div class="slide" style="transform: rotateY(60deg) translateZ(280px);">
+                  <img src="photo2.jpg" alt="Fotoğraf 2" />
+                </div>
+                <div class="slide" style="transform: rotateY(120deg) translateZ(280px);">
+                  <img src="photo3.jpg" alt="Fotoğraf 3" />
+                </div>
+                <div class="slide" style="transform: rotateY(180deg) translateZ(280px);">
+                  <img src="photo4.jpg" alt="Fotoğraf 4" />
+                </div>
+                <div class="slide" style="transform: rotateY(240deg) translateZ(280px);">
+                  <img src="photo5.jpg" alt="Fotoğraf 5" />
+                </div>
+                <div class="slide" style="transform: rotateY(300deg) translateZ(280px);">
+                  <img src="photo6.jpg" alt="Fotoğraf 6" />
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="text-align:center">
+              <p class="note" style="margin:0">
+                Albüm otomatik döner. Üzerine gelince durur. (İstersen hız/mesafe ayarını CSS’ten değiştirebilirsin.)
+              </p>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Yanlış cevap videosu overlay -->
+  <div class="overlay" id="overlay">
+    <div class="overlay-card">
+      <div class="overlay-head">
+        <b>Doğrulama Başarısız</b>
+        <button class="btn secondary" id="btnCloseOverlay" type="button">Kapat</button>
+      </div>
+      <div class="overlay-body">
+        <video id="failVideo" controls playsinline preload="metadata">
+          <!-- Aynı klasöre video.mp4 koy -->
+          <source src="video.mp4" type="video/mp4" />
+          Tarayıcın video etiketini desteklemiyor.
+        </video>
+        <div class="row" style="margin-top:12px; justify-content:flex-end">
+          <button class="btn" id="btnRetry" type="button">Tekrar Dene</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* -------------------------------------------------------
+      Not: “Cevabı front-end’de yazma” talebine uygun olarak
+      düz metin tutmuyoruz. Yine de bu bir front-end uygulama;
+      kararlı gizlilik/anti-reverse garanti edemez.
+    -------------------------------------------------------- */
+
+    // Basit yardımcılar
+    const $ = (id) => document.getElementById(id);
+    const show = (id) => {
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      $(id).classList.add("active");
+    };
+    const norm = (s) => (s || "")
+      .toLowerCase()
+      .replaceAll("ı","i").replaceAll("ğ","g").replaceAll("ü","u")
+      .replaceAll("ş","s").replaceAll("ö","o").replaceAll("ç","c")
+      .replace(/\s+/g," ")
+      .trim();
+
+    // Basit obfuscation (düz metin yok): base64 + normalizasyon kıyası
+    // Beklenen: "30 ekim 2024"
+    const encodedQ1 = "MzAgZWtpbSAyMDI0"; // base64("30 ekim 2024")
+    const expectedQ1 = () => atob(encodedQ1);
+
+    // İkinci cevap: 15.05.01 (mini-game sonucuna göre üretilecek)
+    // Yine düz metin saklamıyoruz: target, runtime’da stageTargets üzerinden hesaplanır.
+
+    // UI durum
+    const statusPill = $("statusPill");
+
+    // Overlay video kontrol
+    const overlay = $("overlay");
+    const failVideo = $("failVideo");
+    const openFail = () => {
+      overlay.classList.add("show");
+      try { failVideo.currentTime = 0; failVideo.play(); } catch(e){}
+    };
+    const closeFail = () => {
+      overlay.classList.remove("show");
+      try { failVideo.pause(); } catch(e){}
+    };
+
+    $("btnCloseOverlay").addEventListener("click", closeFail);
+    $("btnRetry").addEventListener("click", () => {
+      closeFail();
+      // Kullanıcıyı ilk şifre ekranına geri al (genel fallback)
+      show("screen-pass-1");
+      statusPill.textContent = "Giriş • 1. doğrulama";
+      $("q1").focus();
+    });
+
+    // SCREEN 1 doğrulama
+    $("btnQ1").addEventListener("click", () => {
+      const input = norm($("q1").value);
+      const expected = norm(expectedQ1());
+      if (input === expected){
+        statusPill.textContent = "Doğrulandı • Yükleniyor";
+        show("screen-loader");
+        // loader sonrası game
+        setTimeout(() => {
+          show("screen-game");
+          statusPill.textContent = "Mini-game • Kalp görevi";
+          startGame();
+        }, 1700);
+      } else {
+        openFail();
+      }
+    });
+
+    $("q1").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") $("btnQ1").click();
+    });
+
+    /* -------------------------------------------------------
+      Mini-game: 3 aşama
+      - Aşama 1: 15 tık
+      - Aşama 2: 5 tık
+      - Aşama 3: 1 tık
+      Random kalp butonları spawn olur.
+      Bu aşamadaki tüm kalplere basılınca bir sonraki aşamaya geçer.
+    -------------------------------------------------------- */
+    const stageTargets = [15, 5, 1];
+    let stage = 0;
+    let stageClickCount = 0;
+    let totalClickCount = 0;
+    let spawnTimer = null;
+    let activeHearts = new Map(); // id -> {el, clicked}
+
+    // “İlk bastığını aklında tut” için ilk tıklanan kalp id’si:
+    let firstClickedHeartId = null;
+
+    const heartField = $("heartField");
+    const toast = $("toast");
+
+    const uiStageLabel = $("stageLabel");
+    const uiStageClicks = $("stageClicks");
+    const uiStageTarget = $("stageTarget");
+    const uiTotalClicks = $("totalClicks");
+    const resultPreview = $("resultPreview");
+
+    function toastMsg(msg){
+      toast.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 1500);
+    }
+
+    function clearHearts(){
+      if (spawnTimer) clearInterval(spawnTimer);
+      spawnTimer = null;
+      activeHearts.forEach(v => v.el.remove());
+      activeHearts.clear();
+      heartField.innerHTML = "";
+    }
+
+    function updateHUD(){
+      uiStageLabel.textContent = String(stage + 1);
+      uiStageClicks.textContent = String(stageClickCount);
+      uiStageTarget.textContent = String(stageTargets[stage]);
+      uiTotalClicks.textContent = String(totalClickCount);
+      resultPreview.textContent = `${String(stageTargets[0]).padStart(2,"0")}.${String(stageTargets[1]).padStart(2,"0")}.${String(stageTargets[2]).padStart(2,"0")}`;
+    }
+
+    function randomBetween(min,max){ return Math.random()*(max-min)+min; }
+
+    function buildHeart(id){
+      const wrap = document.createElement("div");
+      wrap.className = "heart-container";
+      wrap.title = "Like";
+
+      // rastgele konum (field içinde)
+      const pad = 58;
+      const rect = heartField.getBoundingClientRect();
+      const w = Math.max(heartField.clientWidth, 320);
+      const h = Math.max(heartField.clientHeight, 320);
+      const x = randomBetween(10, w - pad);
+      const y = randomBetween(10, h - pad);
+      wrap.style.left = `${x}px`;
+      wrap.style.top  = `${y}px`;
+
+      // bir miktar renk varyasyonu (pastel aralık)
+      const hue = Math.floor(randomBetween(285, 330));
+      wrap.style.setProperty("--heart-color", `hsl(${hue} 95% 68%)`);
+
+      // içerik (Uiverse component)
+      wrap.innerHTML = `
+        <input id="heart-${id}" class="checkbox" type="checkbox" />
+        <div class="svg-container" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" class="svg-outline" viewBox="0 0 24 24">
+            <path d="M17.5,1.917a6.4,6.4,0,0,0-5.5,3.3,6.4,6.4,0,0,0-5.5-3.3A6.8,6.8,0,0,0,0,8.967c0,4.547,4.786,9.513,8.8,12.88a4.974,4.974,0,0,0,6.4,0C19.214,18.48,24,13.514,24,8.967A6.8,6.8,0,0,0,17.5,1.917Zm-3.585,18.4a2.973,2.973,0,0,1-3.83,0C4.947,16.006,2,11.87,2,8.967a4.8,4.8,0,0,1,4.5-5.05A4.8,4.8,0,0,1,11,8.967a1,1,0,0,0,2,0,4.8,4.8,0,0,1,4.5-5.05A4.8,4.8,0,0,1,22,8.967C22,11.87,19.053,16.006,13.915,20.313Z"></path>
+          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" class="svg-filled" viewBox="0 0 24 24">
+            <path d="M17.5,1.917a6.4,6.4,0,0,0-5.5,3.3,6.4,6.4,0,0,0-5.5-3.3A6.8,6.8,0,0,0,0,8.967c0,4.547,4.786,9.513,8.8,12.88a4.974,4.974,0,0,0,6.4,0C19.214,18.48,24,13.514,24,8.967A6.8,6.8,0,0,0,17.5,1.917Z"></path>
+          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" height="100" width="100" class="svg-celebrate">
+            <polygon points="10,10 20,20"></polygon>
+            <polygon points="10,50 20,50"></polygon>
+            <polygon points="20,80 30,70"></polygon>
+            <polygon points="90,10 80,20"></polygon>
+            <polygon points="90,50 80,50"></polygon>
+            <polygon points="80,80 70,70"></polygon>
+          </svg>
+        </div>
+      `;
+
+      const checkbox = wrap.querySelector(".checkbox");
+      checkbox.addEventListener("change", () => {
+        if (!checkbox.checked) return;
+        if (!firstClickedHeartId && stage === 0) firstClickedHeartId = id;
+
+        stageClickCount++;
+        totalClickCount++;
+        updateHUD();
+
+        // Kalp artık “tamamlandı” -> kaldır
+        setTimeout(() => {
+          activeHearts.delete(id);
+          wrap.remove();
+          // Bu aşamadaki hedef tamamlandı mı?
+          if (stageClickCount >= stageTargets[stage]){
+            nextStage();
+          }
+        }, 180);
+      });
+
+      return wrap;
+    }
+
+    function spawnHeartsForStage(){
+      clearHearts();
+      stageClickCount = 0;
+      activeHearts.clear();
+      updateHUD();
+
+      const target = stageTargets[stage];
+
+      // Bu aşama için tıklanabilir kalpleri tek seferde üret
+      for (let i=0; i<target; i++){
+        const id = `${stage}-${i}-${Math.random().toString(16).slice(2)}`;
+        const h = buildHeart(id);
+        activeHearts.set(id, { el: h });
+        heartField.appendChild(h);
+      }
+
+      // Ekstra: animasyon amaçlı arka planda “uçuşan” kalpler (tıklanamaz) - zaten body bg’de var.
+      // Burada minigame alanında da küçük bir “sparkle” hissi için hafif spawn:
+      spawnTimer = setInterval(() => {
+        // sahada hâlâ kalp varsa küçük jitter (konum hafif oynasın)
+        activeHearts.forEach(({el}) => {
+          const dx = randomBetween(-2.2, 2.2);
+          const dy = randomBetween(-2.2, 2.2);
+          const left = parseFloat(el.style.left || "0") + dx;
+          const top  = parseFloat(el.style.top  || "0") + dy;
+          el.style.left = `${Math.max(6, Math.min(heartField.clientWidth-60, left))}px`;
+          el.style.top  = `${Math.max(6, Math.min(heartField.clientHeight-60, top))}px`;
+        });
+      }, 520);
+    }
+
+    function nextStage(){
+      if (spawnTimer) clearInterval(spawnTimer);
+      spawnTimer = null;
+
+      if (stage === 0){
+        toastMsg("15 tamamlandı. İlk bastığını aklında tut. Sonrakine geçiyoruz.");
+      } else if (stage === 1){
+        toastMsg("5 tamamlandı. İlk bastığını aklında tut. Sonrakine geçiyoruz.");
+      } else {
+        toastMsg("1 tamamlandı. Son doğrulamaya geçiyoruz.");
+      }
+
+      setTimeout(() => {
+        if (stage < 2){
+          stage++;
+          spawnHeartsForStage();
+          statusPill.textContent = `Mini-game • Aşama ${stage+1}/3`;
+        } else {
+          // game bitti -> 2. şifre ekranı
+          clearHearts();
+          statusPill.textContent = "Doğrulama • 2. soru";
+          show("screen-pass-2");
+          $("q2").focus();
+        }
+      }, 900);
+    }
+
+    function startGame(){
+      stage = 0;
+      stageClickCount = 0;
+      totalClickCount = 0;
+      firstClickedHeartId = null;
+      updateHUD();
+      spawnHeartsForStage();
+    }
+
+    $("btnResetGame").addEventListener("click", () => {
+      startGame();
+      statusPill.textContent = "Mini-game • Kalp görevi";
+      toastMsg("Mini-game sıfırlandı.");
+    });
+
+    // SCREEN 4 doğrulama
+    function expectedQ2(){
+      // Hedefleri “runtime” üret: 15.05.01
+      const a = String(stageTargets[0]).padStart(2,"0");
+      const b = String(stageTargets[1]).padStart(2,"0");
+      const c = String(stageTargets[2]).padStart(2,"0");
+      return `${a}.${b}.${c}`;
+    }
+    function normalizeDots(s){
+      return (s || "")
+        .replace(/\s+/g,"")
+        .replace(/[\/\-]/g,".")
+        .replace(/\.+/g,".")
+        .trim();
+    }
+
+    $("btnQ2").addEventListener("click", () => {
+      const input = normalizeDots($("q2").value);
+      const expected = expectedQ2();
+
+      if (input === expected){
+        // Tarihi göster ve albüme geç
+        statusPill.textContent = "Onaylandı • Tarih";
+        $("q2Hint").innerHTML = `Doğru. Ortaya çıkan tarih: <b>15/05/01</b>`;
+        setTimeout(() => {
+          statusPill.textContent = "Albüm • 3D";
+          show("screen-album");
+        }, 900);
+      } else {
+        openFail();
+      }
+    });
+
+    $("q2").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") $("btnQ2").click();
+    });
+
+    // Arka plan uçan kalpler
+    const bg = $("bgHearts");
+    function spawnBgHeart(){
+      const h = document.createElement("div");
+      h.className = "bg-heart";
+      const size = randomBetween(10, 18);
+      h.style.width = `${size}px`;
+      h.style.height = `${size}px`;
+      h.style.left = `${randomBetween(0, 100)}vw`;
+      h.style.bottom = `-30px`;
+      const dur = randomBetween(6, 12);
+      h.style.animationDuration = `${dur}s`;
+      h.style.opacity = String(randomBetween(.2,.75));
+      bg.appendChild(h);
+      setTimeout(() => h.remove(), dur*1000 + 400);
+    }
+    setInterval(spawnBgHeart, 260);
+
+    // İlk yük: durum
+    statusPill.textContent = "Giriş • 1. doğrulama";
+
+    /* -------------------------------------------------------
+      Medya notları:
+      - Aynı klasöre: photo1.jpg ... photo6.jpg
+      - video.mp4 (yanlış cevap videosu)
+      - İstersen dosya adlarını burada güncelle.
+    -------------------------------------------------------- */
+  </script>
+</body>
+</html>
