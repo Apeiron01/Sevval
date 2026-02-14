@@ -15,10 +15,10 @@
       --shadow: 0 18px 60px rgba(24, 10, 40, .18);
       --radius: 18px;
 
-      /* Album 3D */
-      --ringZ: 250px;        /* translateZ for slides (responsive updated in JS) */
-      --slideW: 260px;       /* slide card width (responsive updated in JS) */
-      --slideH: 340px;       /* slide card height (responsive updated in JS) */
+      /* Album 3D (JS updates responsively) */
+      --ringZ: 260px;
+      --slideW: 260px;
+      --slideH: 340px;
     }
 
     *{box-sizing:border-box}
@@ -346,7 +346,7 @@
       100% { transform: scale(1.4); opacity: 0; display: none; }
     }
 
-    /* Album 3D: separate cards (no overlap) */
+    /* Album 3D */
     .album{
       min-height: min(70vh, 720px);
       display:grid;
@@ -389,6 +389,7 @@
       height: var(--slideH);
       transform-style: preserve-3d;
       transform: translate(-50%, -50%) rotateY(var(--ry)) translateZ(var(--ringZ));
+      backface-visibility: hidden;
     }
 
     /* Distinct card per photo */
@@ -401,7 +402,7 @@
       box-shadow: 0 18px 50px rgba(24,10,40,.18);
       overflow:hidden;
       display:grid;
-      grid-template-rows: 1fr auto;
+      grid-template-rows: 1fr;
     }
     .photo-card img{
       width:100%;
@@ -409,16 +410,24 @@
       object-fit: cover;
       display:block;
       background: rgba(255,255,255,.6);
+      /* IMPORTANT: hide browser broken-image labels/numbers by preventing selection and forcing cover */
+      user-select:none;
+      -webkit-user-drag:none;
     }
-    .photo-cap{
-      padding: 10px 12px;
-      font-size: 12px;
-      color: rgba(81,52,101,.92);
-      font-weight:900;
+
+    /* If an image fails to load, hide it so no alt text / labels appear */
+    .photo-card img.broken{ display:none; }
+    .photo-card .fallback{
+      display:none;
+      height:100%;
+      width:100%;
+      place-items:center;
       text-align:center;
-      border-top: 1px solid rgba(42,22,56,.10);
-      background: rgba(246,241,255,.65);
+      color: rgba(81,52,101,.9);
+      font-weight:900;
+      background: rgba(246,241,255,.75);
     }
+    .photo-card .fallback.show{ display:grid; }
 
     /* Wrong answer overlay */
     .overlay{
@@ -501,7 +510,7 @@
             <div class="card">
               <h2>Not</h2>
               <p>Doğru cevapta kısa bir yükleme ekranından sonra mini-game başlar.</p>
-              <p class="note">Repo yapısı: <b>index.html</b> + aynı klasörde <b>video.mp4</b> ve <b>photo1.jpeg..photo6.jpeg</b></p>
+              <p class="note">Repo: <b>index.html</b> + aynı klasörde <b>video.mp4</b> ve <b>photo1.jpeg..photo6.jpeg</b></p>
             </div>
           </div>
         </section>
@@ -573,50 +582,57 @@
             <div class="carousel-wrap">
               <div class="carousel-scene">
                 <div class="carousel" id="carousel" aria-label="3D Fotoğraf Albümü">
+
+                  <!-- IMPORTANT: captions removed (no "Fotoğraf 2" etc.) -->
+
                   <div class="slide" style="--ry:0deg">
                     <div class="photo-card">
-                      <img src="photo1.jpeg" alt="Fotoğraf 1" />
-                      <div class="photo-cap">Fotoğraf 1</div>
+                      <img src="photo1.jpeg" alt="" />
+                      <div class="fallback">Fotoğraf yüklenemedi</div>
                     </div>
                   </div>
+
                   <div class="slide" style="--ry:60deg">
                     <div class="photo-card">
-                      <img src="photo2.jpeg" alt="Fotoğraf 2" />
-                      <div class="photo-cap">Fotoğraf 2</div>
+                      <img src="photo2.jpeg" alt="" />
+                      <div class="fallback">Fotoğraf yüklenemedi</div>
                     </div>
                   </div>
+
                   <div class="slide" style="--ry:120deg">
                     <div class="photo-card">
-                      <img src="photo3.jpeg" alt="Fotoğraf 3" />
-                      <div class="photo-cap">Fotoğraf 3</div>
+                      <img src="photo3.jpeg" alt="" />
+                      <div class="fallback">Fotoğraf yüklenemedi</div>
                     </div>
                   </div>
+
                   <div class="slide" style="--ry:180deg">
                     <div class="photo-card">
-                      <img src="photo4.jpeg" alt="Fotoğraf 4" />
-                      <div class="photo-cap">Fotoğraf 4</div>
+                      <img src="photo4.jpeg" alt="" />
+                      <div class="fallback">Fotoğraf yüklenemedi</div>
                     </div>
                   </div>
+
                   <div class="slide" style="--ry:240deg">
                     <div class="photo-card">
-                      <img src="photo5.jpeg" alt="Fotoğraf 5" />
-                      <div class="photo-cap">Fotoğraf 5</div>
+                      <img src="photo5.jpeg" alt="" />
+                      <div class="fallback">Fotoğraf yüklenemedi</div>
                     </div>
                   </div>
+
                   <div class="slide" style="--ry:300deg">
                     <div class="photo-card">
-                      <img src="photo6.jpeg" alt="Fotoğraf 6" />
-                      <div class="photo-cap">Fotoğraf 6</div>
+                      <img src="photo6.jpeg" alt="" />
+                      <div class="fallback">Fotoğraf yüklenemedi</div>
                     </div>
                   </div>
+
                 </div>
               </div>
             </div>
 
             <div class="card" style="text-align:center">
-              <p class="note" style="margin:0">
-                Albüm otomatik döner. Üzerine gelince durur.
-              </p>
+              <p class="note" style="margin:0">Albüm otomatik döner. Üzerine gelince durur.</p>
             </div>
           </div>
         </section>
@@ -645,7 +661,6 @@
   </div>
 
   <script>
-    /* helpers */
     const $ = (id) => document.getElementById(id);
     const show = (id) => {
       document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
@@ -660,7 +675,6 @@
       .replace(/\s+/g," ")
       .trim();
 
-    /* Q1 expected (front-end; base64) */
     const encodedQ1 = "MzAgZWtpbSAyMDI0"; // "30 ekim 2024"
     const expectedQ1 = () => atob(encodedQ1);
 
@@ -806,7 +820,6 @@
         heartField.appendChild(h);
       }
 
-      // tiny drift only (avoid "broken" look)
       spawnTimer = setInterval(() => {
         const w = heartField.clientWidth;
         const h = heartField.clientHeight;
@@ -860,11 +873,7 @@
       toastMsg("Mini-game sıfırlandı.");
     });
 
-    /* Screen 4 (Password 2) */
-    function expectedQ2Formats(){
-      // Accept: 15.05.01 AND 15.5.1 (also accept separators / - / / and spaces)
-      return new Set(["15.05.01", "15.5.1"]);
-    }
+    /* Password 2 */
     function normalizeDots(s){
       return (s || "")
         .toLowerCase()
@@ -874,19 +883,16 @@
         .replace(/^\./,"")
         .replace(/\.$/,"");
     }
+    const acceptedQ2 = new Set(["15.05.01", "15.5.1"]);
 
     $("btnQ2").addEventListener("click", () => {
       const input = normalizeDots($("q2").value);
-
-      // We don't show the answer; we just accept these formats.
-      const ok = expectedQ2Formats().has(input);
-
-      if (ok){
+      if (acceptedQ2.has(input)){
         $("q2Hint").textContent = "Doğru.";
         setTimeout(() => {
           statusPill.textContent = "Albüm • 3D";
           show("screen-album");
-          setAlbumSizing(); // ensure correct sizing after show
+          setAlbumSizing();
         }, 650);
       } else {
         openFail();
@@ -901,11 +907,6 @@
       h.className = "bg-heart";
 
       const size = rand(10, 18);
-      h.style.width = `${size}px`;
-      h.style.height = `${size}px`;
-
-      // Keep pseudo-elements consistent: use inline style sheet variables via scale
-      // (pseudo-elements stay 14px; to prevent mismatch, we scale the whole node)
       const scale = size / 14;
       const dur = rand(6, 12);
       const drift = Math.floor(rand(-18, 18));
@@ -924,22 +925,28 @@
 
     /* Responsive sizing for album so photos don't overlap */
     function setAlbumSizing(){
-      const scene = document.querySelector(".carousel-scene");
-      if (!scene) return;
-
       const vw = Math.min(window.innerWidth, 980);
-      // Choose a card size that stays separated and centered
-      const slideW = Math.max(190, Math.min(280, Math.floor(vw * 0.34)));
-      const slideH = Math.floor(slideW * 1.28);
-
-      // ringZ determines spacing: bigger = more separation
-      const ringZ = Math.max(210, Math.min(360, Math.floor(slideW * 1.05)));
+      const slideW = Math.max(190, Math.min(300, Math.floor(vw * 0.36)));
+      const slideH = Math.floor(slideW * 1.25);
+      const ringZ  = Math.max(230, Math.min(420, Math.floor(slideW * 1.25)));
 
       document.documentElement.style.setProperty("--slideW", slideW + "px");
       document.documentElement.style.setProperty("--slideH", slideH + "px");
-      document.documentElement.style.setProperty("--ringZ", ringZ + "px");
+      document.documentElement.style.setProperty("--ringZ",  ringZ  + "px");
     }
     window.addEventListener("resize", setAlbumSizing);
+
+    /* Hide any image alt/labels if a file is missing or path mismatched */
+    function attachImageGuards(){
+      document.querySelectorAll(".photo-card img").forEach(img => {
+        img.addEventListener("error", () => {
+          img.classList.add("broken");
+          const fb = img.parentElement.querySelector(".fallback");
+          if (fb) fb.classList.add("show");
+        }, { once:true });
+      });
+    }
+    attachImageGuards();
 
     statusPill.textContent = "Giriş • 1. doğrulama";
     setAlbumSizing();
